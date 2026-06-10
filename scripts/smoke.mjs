@@ -19,6 +19,7 @@ assert(/^\d+\.\d+\.\d+/.test(version), `--version should print a semver, got: ${
 
 const help = run('--help')
 assert(help.includes('1gr14.dev'), 'help should show the site link')
-assert(help.includes('discord'), 'help should list the discord command')
+assert(help.includes('open'), 'help should list the open command')
+assert(help.includes('create'), 'help should list the create command')
 
 console.log('smoke ok')

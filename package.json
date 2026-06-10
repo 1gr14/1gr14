@@ -1,10 +1,13 @@
 {
   "name": "1gr14",
   "version": "0.1.0",
-  "description": "The 1gr14 command-line tool — open the site and channels from your terminal.",
+  "description": "The 1gr14 command-line tool — create apps from 1gr14 templates, sign in, and open the ecosystem links.",
   "keywords": [
     "1gr14",
     "cli",
+    "create",
+    "start0",
+    "boilerplate",
     "commander",
     "open"
   ],
@@ -74,8 +77,10 @@
     "clean": "rimraf dist && rimraf dist-npm && rimraf node_modules/.cache"
   },
   "dependencies": {
+    "@clack/prompts": "^1.5.1",
     "commander": "^14.0.0",
-    "open": "^10.1.0"
+    "open": "^10.1.0",
+    "tar": "^7.5.16"
   },
   "peerDependencies": {},
   "devDependencies": {
