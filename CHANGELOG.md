@@ -1,3 +1,10 @@
+# [0.2.0](https://github.com/1gr14/1gr14/compare/v0.1.0...v0.2.0) (2026-06-10)
+
+
+### Features
+
+* the ecosystem engine — login, create, download, update ([8125b62](https://github.com/1gr14/1gr14/commit/8125b6225c958ca8af2df196255b042ff4f2a555))
+
 # [0.1.0](https://github.com/1gr14/1gr14/compare/v0.0.0...v0.1.0) (2026-06-09)
 
 
