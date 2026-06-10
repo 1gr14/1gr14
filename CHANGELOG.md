@@ -1,3 +1,10 @@
+# [0.3.0](https://github.com/1gr14/1gr14/compare/v0.2.0...v0.3.0) (2026-06-10)
+
+
+### Features
+
+* exchange the device session for a restricted API key ([b4aef2c](https://github.com/1gr14/1gr14/commit/b4aef2c2d771a3dc135342bcf44ef485f6598480))
+
 # [0.2.0](https://github.com/1gr14/1gr14/compare/v0.1.0...v0.2.0) (2026-06-10)
 
 
