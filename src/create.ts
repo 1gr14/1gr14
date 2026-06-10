@@ -1,6 +1,6 @@
 import * as p from '@clack/prompts'
 import { spawnSync } from 'node:child_process'
-import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { type FetchLike } from './api.js'
 import { resolveSite } from './config.js'
@@ -22,31 +22,6 @@ export const assertTargetDir = (dir: string): void => {
   }
 }
 
-/**
- * Record which template version the app was created from — `{ "<template>": { "version": "v1.2.3" } }` in
- * `package.json`. The update flow diffs `<template>@<this-version>..latest` to see what the app missed.
- *
- * @returns `false` when the unpacked template has no `package.json` to mark.
- */
-export const writeVersionMarker = ({
-  dir,
-  template,
-  version,
-}: {
-  dir: string
-  template: string
-  version: string
-}): boolean => {
-  const file = join(dir, 'package.json')
-  if (!existsSync(file)) {
-    return false
-  }
-  const pkg = JSON.parse(readFileSync(file, 'utf8')) as Record<string, unknown>
-  pkg[template] = { version }
-  writeFileSync(file, JSON.stringify(pkg, null, 2) + '\n')
-  return true
-}
-
 const templateHasInitScript = (dir: string): boolean => {
   try {
     const pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')) as {
@@ -60,8 +35,9 @@ const templateHasInitScript = (dir: string): boolean => {
 
 /**
  * The `create` engine: sign in if needed, download a template repo archive from the 1gr14 site, unpack it, `git init`,
- * record the version marker, and hand over to the template's own `init` script. `create-start0` calls this with the
- * template pinned; the CLI exposes it as `1gr14 create`.
+ * and hand over to the template's own `init` script. `create-start0` calls this with the template pinned; the CLI
+ * exposes it as `1gr14 create`. The version marker (`"<template>": { "version" }`) ships inside the template's own
+ * `package.json`, stamped at release — nothing to write here.
  */
 export const runCreate = async ({
   template = 'start0',
@@ -108,14 +84,10 @@ export const runCreate = async ({
   spinner.message('Extracting…')
   await extractTemplate({ data: archive.data, target })
 
-  const version = archive.version
-  if (version) {
-    writeVersionMarker({ dir: target, template, version })
-  }
   if (hasCommand('git') && !existsSync(join(target, '.git'))) {
     spawnSync('git', ['init', '--quiet'], { cwd: target, stdio: 'ignore' })
   }
-  spinner.stop(`Created ${dirInput}${version ? ` from ${template} ${version}` : ''}`)
+  spinner.stop(`Created ${dirInput}${archive.version ? ` from ${template} ${archive.version}` : ''}`)
 
   const nextSteps = `${dirInput === '.' ? '' : `cd ${dirInput}\n`}bun run init`
   if (!templateHasInitScript(target)) {

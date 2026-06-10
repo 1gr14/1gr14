@@ -2,7 +2,7 @@ import { describe, expect, it } from 'bun:test'
 import { existsSync, mkdtempSync } from 'node:fs'
 import { homedir, tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { configDir, deleteToken, getToken, resolveSite, setToken, siteEnvVar, tokenEnvVar } from './config.js'
+import { apiKeyEnvVar, configDir, forgetApiKey, getApiKey, resolveSite, setApiKey, siteEnvVar } from './config.js'
 
 const makeEnv = (): NodeJS.ProcessEnv => ({ XDG_CONFIG_HOME: mkdtempSync(join(tmpdir(), '1gr14-config-')) })
 
@@ -19,38 +19,38 @@ describe('configDir', () => {
   })
 })
 
-describe('token store', () => {
-  it('roundtrips a token per site', () => {
+describe('api key store', () => {
+  it('roundtrips a key per site', () => {
     const env = makeEnv()
-    expect(getToken({ site, env })).toBe(null)
-    setToken({ site, token: 'aaa', env })
-    setToken({ site: 'https://other.test', token: 'bbb', env })
-    expect(getToken({ site, env })).toBe('aaa')
-    expect(getToken({ site: 'https://other.test', env })).toBe('bbb')
+    expect(getApiKey({ site, env })).toBe(null)
+    setApiKey({ site, apiKey: 'aaa', env })
+    setApiKey({ site: 'https://other.test', apiKey: 'bbb', env })
+    expect(getApiKey({ site, env })).toBe('aaa')
+    expect(getApiKey({ site: 'https://other.test', env })).toBe('bbb')
     expect(existsSync(join(configDir(env), 'auth.json'))).toBe(true)
   })
 
-  it('deletes only the requested site and reports whether something was there', () => {
+  it('forgets only the requested site and reports whether something was there', () => {
     const env = makeEnv()
-    setToken({ site, token: 'aaa', env })
-    setToken({ site: 'https://other.test', token: 'bbb', env })
-    expect(deleteToken({ site, env })).toBe(true)
-    expect(deleteToken({ site, env })).toBe(false)
-    expect(getToken({ site, env })).toBe(null)
-    expect(getToken({ site: 'https://other.test', env })).toBe('bbb')
+    setApiKey({ site, apiKey: 'aaa', env })
+    setApiKey({ site: 'https://other.test', apiKey: 'bbb', env })
+    expect(forgetApiKey({ site, env })).toBe(true)
+    expect(forgetApiKey({ site, env })).toBe(false)
+    expect(getApiKey({ site, env })).toBe(null)
+    expect(getApiKey({ site: 'https://other.test', env })).toBe('bbb')
   })
 
-  it('prefers the env var over the stored token', () => {
+  it('prefers the env var over the stored key', () => {
     const env = makeEnv()
-    setToken({ site, token: 'stored', env })
-    env[tokenEnvVar] = 'from-env'
-    expect(getToken({ site, env })).toBe('from-env')
+    setApiKey({ site, apiKey: 'stored', env })
+    env[apiKeyEnvVar] = 'from-env'
+    expect(getApiKey({ site, env })).toBe('from-env')
   })
 
   it('survives a corrupt auth file', () => {
     const env = makeEnv()
-    setToken({ site, token: 'aaa', env })
-    expect(getToken({ site: 'https://missing.test', env })).toBe(null)
+    setApiKey({ site, apiKey: 'aaa', env })
+    expect(getApiKey({ site: 'https://missing.test', env })).toBe(null)
   })
 })
 

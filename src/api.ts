@@ -53,7 +53,10 @@ const jsonInit = (body: unknown): RequestInit => ({
   body: JSON.stringify(body),
 })
 
-const authHeaders = (token: string): Record<string, string> => ({ authorization: `Bearer ${token}` })
+// The short-lived device-flow session goes in `Authorization`; the long-lived API key in `x-api-key`. The site gates
+// each to its own few endpoints.
+const bearerHeaders = (token: string): Record<string, string> => ({ authorization: `Bearer ${token}` })
+const apiKeyHeaders = (apiKey: string): Record<string, string> => ({ 'x-api-key': apiKey })
 
 export type DeviceCodeResponse = {
   device_code: string
@@ -64,8 +67,10 @@ export type DeviceCodeResponse = {
   interval: number
 }
 
-/** Step 1 of the device flow ([RFC 8628](https://datatracker.ietf.org/doc/html/rfc8628)): get a code pair to show the
-user. */
+/**
+ * Step 1 of the device flow ([RFC 8628](https://datatracker.ietf.org/doc/html/rfc8628)): get a code pair to show the
+ * user.
+ */
 export const requestDeviceCode = async ({
   site,
   fetchFn = fetch,
@@ -129,17 +134,17 @@ export const pollDeviceToken = async ({
 
 export type SessionUser = { email: string; name: string }
 
-/** The user behind a token, or `null` when the token no longer maps to a session. */
+/** The user behind an API key, or `null` when the key no longer maps to a user. */
 export const getSession = async ({
   site,
-  token,
+  apiKey,
   fetchFn = fetch,
 }: {
   site: string
-  token: string
+  apiKey: string
   fetchFn?: FetchLike
 }): Promise<SessionUser | null> => {
-  const response = await fetchFn(`${site}/api/auth/get-session`, { headers: authHeaders(token) })
+  const response = await fetchFn(`${site}/api/auth/get-session`, { headers: apiKeyHeaders(apiKey) })
   if (!response.ok) {
     throw await parseError(response)
   }
@@ -147,7 +152,56 @@ export const getSession = async ({
   return data?.user ?? null
 }
 
-/** Revoke the session behind a token on the server. A 401 means it is already gone — not an error for sign-out. */
+/**
+ * Exchange the short-lived device-flow session for the long-lived API key the CLI stores — the last step of `1gr14
+ * login`. The site revokes the session on the way out, so the key is the only credential that remains.
+ */
+export const exchangeApiKey = async ({
+  site,
+  token,
+  client,
+  name,
+  fetchFn = fetch,
+}: {
+  site: string
+  /** The device-flow session token — consumed by the exchange. */
+  token: string
+  /** The registered client id this key is for (the device-flow `client_id`). */
+  client: string
+  /** Key name shown on the site, e.g. this machine's hostname. */
+  name?: string
+  fetchFn?: FetchLike
+}): Promise<string> => {
+  const url = new URL(`${site}/api/api-keys/exchange`)
+  url.searchParams.set('client', client)
+  if (name) {
+    url.searchParams.set('name', name)
+  }
+  const response = await fetchFn(url, { method: 'POST', headers: bearerHeaders(token) })
+  if (!response.ok) {
+    throw await parseError(response)
+  }
+  const data = (await response.json()) as { api_key: string }
+  return data.api_key
+}
+
+/** Revoke an API key on the server — `1gr14 logout`. A 401 means it is already dead — not an error for sign-out. */
+export const revokeApiKey = async ({
+  site,
+  apiKey,
+  fetchFn = fetch,
+}: {
+  site: string
+  apiKey: string
+  fetchFn?: FetchLike
+}): Promise<void> => {
+  const response = await fetchFn(`${site}/api/api-keys/revoke`, { method: 'POST', headers: apiKeyHeaders(apiKey) })
+  if (!response.ok && response.status !== 401) {
+    throw await parseError(response)
+  }
+}
+
+/** Revoke the device-flow session behind a token — cleanup for a failed exchange. A 401 means it is already gone. */
 export const signOutRemote = async ({
   site,
   token,
@@ -159,39 +213,11 @@ export const signOutRemote = async ({
 }): Promise<void> => {
   const response = await fetchFn(`${site}/api/auth/sign-out`, {
     ...jsonInit({}),
-    headers: { 'content-type': 'application/json', ...authHeaders(token) },
+    headers: { 'content-type': 'application/json', ...bearerHeaders(token) },
   })
   if (!response.ok && response.status !== 401) {
     throw await parseError(response)
   }
-}
-
-export type RepoVersion = {
-  repo: string
-  /** The ref archives are served at — the latest version tag, or the default branch while the repo has no tags. */
-  ref: string
-  tag: string | null
-}
-
-/** Ask the site which version of a template repo a download would get right now. Requires an active subscription. */
-export const getRepoVersion = async ({
-  site,
-  token,
-  repo,
-  fetchFn = fetch,
-}: {
-  site: string
-  token: string
-  repo: string
-  fetchFn?: FetchLike
-}): Promise<RepoVersion> => {
-  const url = new URL(`${site}/api/github/version`)
-  url.searchParams.set('repo', repo)
-  const response = await fetchFn(url, { headers: authHeaders(token) })
-  if (!response.ok) {
-    throw await parseError(response)
-  }
-  return (await response.json()) as RepoVersion
 }
 
 export type RepoArchive = {
@@ -204,13 +230,13 @@ export type RepoArchive = {
 /** Download a template repo archive (gzipped tar) from the site. Requires an active subscription. */
 export const downloadRepoArchive = async ({
   site,
-  token,
+  apiKey,
   repo,
   ref,
   fetchFn = fetch,
 }: {
   site: string
-  token: string
+  apiKey: string
   repo: string
   ref?: string
   fetchFn?: FetchLike
@@ -221,7 +247,7 @@ export const downloadRepoArchive = async ({
   if (ref) {
     url.searchParams.set('ref', ref)
   }
-  const response = await fetchFn(url, { headers: authHeaders(token) })
+  const response = await fetchFn(url, { headers: apiKeyHeaders(apiKey) })
   if (!response.ok) {
     throw await parseError(response)
   }

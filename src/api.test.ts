@@ -3,10 +3,11 @@ import {
   ApiError,
   CLIENT_ID,
   downloadRepoArchive,
-  getRepoVersion,
+  exchangeApiKey,
   getSession,
   pollDeviceToken,
   requestDeviceCode,
+  revokeApiKey,
   type FetchLike,
 } from './api.js'
 
@@ -89,24 +90,48 @@ describe('pollDeviceToken', () => {
 describe('getSession', () => {
   it('returns the user', async () => {
     const { fetchFn, calls } = makeFetch([jsonResponse(200, { user: { email: 'a@b.c', name: 'A' } })])
-    const user = await getSession({ site, token: 't', fetchFn })
+    const user = await getSession({ site, apiKey: 'k', fetchFn })
     expect(user?.email).toBe('a@b.c')
-    expect(new Headers(calls[0].init?.headers).get('authorization')).toBe('Bearer t')
+    expect(new Headers(calls[0].init?.headers).get('x-api-key')).toBe('k')
   })
 
   it('returns null when there is no session', async () => {
     const { fetchFn } = makeFetch([jsonResponse(200, null)])
-    expect(await getSession({ site, token: 't', fetchFn })).toBe(null)
+    expect(await getSession({ site, apiKey: 'k', fetchFn })).toBe(null)
   })
 })
 
-describe('getRepoVersion', () => {
+describe('exchangeApiKey', () => {
+  it('trades the device session for an api key', async () => {
+    const { fetchFn, calls } = makeFetch([jsonResponse(200, { api_key: 's_1gr14_abc' })])
+    const apiKey = await exchangeApiKey({ site, token: 't', client: CLIENT_ID, name: 'My Mac', fetchFn })
+    expect(apiKey).toBe('s_1gr14_abc')
+    const url = new URL(calls[0].url)
+    expect(url.pathname).toBe('/api/api-keys/exchange')
+    expect(url.searchParams.get('client')).toBe(CLIENT_ID)
+    expect(url.searchParams.get('name')).toBe('My Mac')
+    expect(calls[0].init?.method).toBe('POST')
+    expect(new Headers(calls[0].init?.headers).get('authorization')).toBe('Bearer t')
+  })
+})
+
+describe('revokeApiKey', () => {
+  it('posts the key and tolerates an already-dead one', async () => {
+    const { fetchFn, calls } = makeFetch([jsonResponse(200, { revoked: true }), jsonResponse(401, {})])
+    await revokeApiKey({ site, apiKey: 'k', fetchFn })
+    expect(new URL(calls[0].url).pathname).toBe('/api/api-keys/revoke')
+    expect(new Headers(calls[0].init?.headers).get('x-api-key')).toBe('k')
+    await revokeApiKey({ site, apiKey: 'k', fetchFn })
+  })
+})
+
+describe('downloadRepoArchive', () => {
   it('parses an AppError-shaped error body', async () => {
     const { fetchFn } = makeFetch([
       jsonResponse(403, { error: { message: 'Only for users with active subscription', code: 'UNSUBSCRIBED' } }),
     ])
     try {
-      await getRepoVersion({ site, token: 't', repo: 'start0', fetchFn })
+      await downloadRepoArchive({ site, apiKey: 'k', repo: 'start0', fetchFn })
       expect.unreachable()
     } catch (error) {
       expect(error).toBeInstanceOf(ApiError)
@@ -115,15 +140,13 @@ describe('getRepoVersion', () => {
       expect((error as ApiError).message).toBe('Only for users with active subscription')
     }
   })
-})
 
-describe('downloadRepoArchive', () => {
   it('requests the tgz with auth and reads the version headers', async () => {
     const bytes = new Uint8Array([1, 2, 3])
     const { fetchFn, calls } = makeFetch([
       new Response(bytes, { status: 200, headers: { 'x-repo-ref': 'v0.1.0', 'x-repo-tag': 'v0.1.0' } }),
     ])
-    const archive = await downloadRepoArchive({ site, token: 't', repo: 'start0', ref: 'v0.1.0', fetchFn })
+    const archive = await downloadRepoArchive({ site, apiKey: 'k', repo: 'start0', ref: 'v0.1.0', fetchFn })
     expect(new Uint8Array(archive.data)).toEqual(bytes)
     expect(archive.ref).toBe('v0.1.0')
     expect(archive.tag).toBe('v0.1.0')
@@ -132,6 +155,6 @@ describe('downloadRepoArchive', () => {
     expect(url.searchParams.get('repo')).toBe('start0')
     expect(url.searchParams.get('format')).toBe('tgz')
     expect(url.searchParams.get('ref')).toBe('v0.1.0')
-    expect(new Headers(calls[0].init?.headers).get('authorization')).toBe('Bearer t')
+    expect(new Headers(calls[0].init?.headers).get('x-api-key')).toBe('k')
   })
 })

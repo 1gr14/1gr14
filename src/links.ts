@@ -1,11 +1,12 @@
 import launch from 'open'
 
 /**
- * Canonical 1gr14 links. The site is home; the rest are community channels. The CLI opens these; you can also read them
- * from code.
+ * Canonical 1gr14 links. The site is home, `support` is the subscription page; the rest are community channels. The CLI
+ * opens these; you can also read them from code.
  */
 export const links = {
   site: 'https://1gr14.dev',
+  support: 'https://1gr14.dev/support',
   youtube: 'https://www.youtube.com/@s_1gr14',
   discord: 'https://discord.gg/qK9gSzqT9e',
   tg: 'https://t.me/s_1gr14',

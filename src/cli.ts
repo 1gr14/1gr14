@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 import { Command } from 'commander'
 import { createRequire } from 'node:module'
-import { ApiError, getSession, signOutRemote } from './api.js'
-import { deleteToken, getToken, resolveSite, tokenEnvVar } from './config.js'
+import { ApiError, getSession, revokeApiKey } from './api.js'
+import { apiKeyEnvVar, forgetApiKey, getApiKey, resolveSite } from './config.js'
 import { runCreate } from './create.js'
 import { runDownload } from './download.js'
 import { links, openLink, type LinkName } from './links.js'
@@ -25,8 +25,8 @@ const fail = (error: unknown): never => {
     if (error.status === 401 || error.code === 'UNAUTHORIZED') {
       console.error('Hint: sign in with `1gr14 login`.')
     }
-    if (error.status === 403 || error.code === 'UNSUBSCRIBED') {
-      console.error(`Hint: this needs an active subscription — ${links.site}/support`)
+    if (error.code === 'UNSUBSCRIBED' || (error.status === 403 && !error.code)) {
+      console.error(`Hint: this needs an active subscription — ${links.support}`)
     }
   }
   process.exit(1)
@@ -63,22 +63,22 @@ program
 
 program
   .command('logout')
-  .description('sign out and forget the stored token')
+  .description('revoke the API key and forget it')
   .option('--site <url>', 'site URL (defaults to https://1gr14.dev)')
   .action(async (options: { site?: string }) => {
     try {
       const site = resolveSite({ site: options.site })
-      const token = getToken({ site })
-      if (!token) {
+      const apiKey = getApiKey({ site })
+      if (!apiKey) {
         console.log('Not signed in.')
         return
       }
-      await signOutRemote({ site, token }).catch(() => {
-        // Revoking is best-effort — the local token is forgotten either way.
+      await revokeApiKey({ site, apiKey }).catch(() => {
+        // Revoking is best-effort — the local key is forgotten either way.
       })
-      deleteToken({ site })
-      if (process.env[tokenEnvVar]) {
-        console.log(`Signed out. Note: ${tokenEnvVar} is set and still takes precedence.`)
+      forgetApiKey({ site })
+      if (process.env[apiKeyEnvVar]) {
+        console.log(`Signed out. Note: ${apiKeyEnvVar} is set and still takes precedence.`)
       } else {
         console.log('Signed out.')
       }
@@ -94,15 +94,15 @@ program
   .action(async (options: { site?: string }) => {
     try {
       const site = resolveSite({ site: options.site })
-      const token = getToken({ site })
-      if (!token) {
+      const apiKey = getApiKey({ site })
+      if (!apiKey) {
         console.log('Not signed in. Run `1gr14 login`.')
         process.exitCode = 1
         return
       }
-      const user = await getSession({ site, token })
+      const user = await getSession({ site, apiKey })
       if (!user) {
-        console.log('The stored token is no longer valid. Run `1gr14 login`.')
+        console.log('The stored API key is no longer valid. Run `1gr14 login`.')
         process.exitCode = 1
         return
       }
@@ -144,7 +144,7 @@ program
 
 program
   .command('update')
-  .description('diff your app\'s template version against the latest, ready for an agent to apply')
+  .description("diff your app's template version against the latest, ready for an agent to apply")
   .argument('[template]', 'template name', 'start0')
   .option('--site <url>', 'site URL (defaults to https://1gr14.dev)')
   .option('--from <ref>', 'diff from this ref (defaults to the package.json marker)')

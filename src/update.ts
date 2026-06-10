@@ -8,7 +8,10 @@ import { resolveSite } from './config.js'
 import { hasCommand } from './create.js'
 import { downloadTemplate, extractTemplate } from './template.js'
 
-/** The template version an app was created from — `package.json` → `"<template>": { "version": "…" }`, or `null`. */
+/**
+ * The template version an app was created from — `package.json` → `"<template>": { "version": "…" }`, or `null`. The
+ * marker ships inside the template's own `package.json` (stamped at release), so every copy carries it from day one.
+ */
 export const readVersionMarker = ({ dir, template }: { dir: string; template: string }): string | null => {
   try {
     const pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')) as Record<
@@ -29,9 +32,9 @@ export const updateDiffFileName = ({ template, from, to }: { template: string; f
   `${template}-${safeRef(from)}..${safeRef(to)}.diff`
 
 /**
- * The `update` engine: figure out which template version the app was created from (the `package.json` marker),
- * download that version and the latest one, and write their diff — the diff of the boilerplate against itself, the
- * app's own changes don't matter — into the app folder for an agent to apply. See the template's `docs/updating.md`.
+ * The `update` engine: figure out which template version the app was created from (the `package.json` marker), download
+ * that version and the latest one, and write their diff — the diff of the boilerplate against itself, the app's own
+ * changes don't matter — into the app folder for an agent to apply. See the template's `docs/updating.md`.
  *
  * @returns The written diff file, or `null` when already up to date.
  */
@@ -124,8 +127,8 @@ export const runUpdate = async ({
     `up to ${toRef} (CHANGELOG.md entries included). Go change by change:`,
     `apply what's relevant to this app, adapt renamed pieces to our names,`,
     `skip what we removed on purpose and list every skip with a reason.`,
-    `Finish by setting package.json "${template}": { "version": "${toRef}" }`,
-    `and deleting ${diffFile}.`,
+    `The diff itself bumps package.json "${template}" to "${toRef}" — make`,
+    `sure that lands. Finish by deleting ${diffFile}.`,
   ].join('\n')
   p.note(prompt, 'Hand this to your agent')
   p.outro('Happy updating! ♥')

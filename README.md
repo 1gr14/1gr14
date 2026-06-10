@@ -39,9 +39,9 @@ Bun 1+ or Node.js 20+. ESM only.
 ```
 
 Downloads the latest release of a template from 1gr14.dev, unpacks it,
-`git init`s, records the template version in `package.json`, and runs the
-template's own `init` script (it asks for your app name and finishes the setup).
-With no directory argument it asks where to create the app.
+`git init`s, and runs the template's own `init` script (it asks for your app
+name and finishes the setup). With no directory argument it asks where to create
+the app.
 
 Getting start0 requires an active [subscription](https://1gr14.dev/support). If
 you are not signed in yet, `create` starts the sign-in for you.
@@ -55,11 +55,11 @@ Flags: `--ref <ref>` downloads a specific git ref instead of the latest release;
 1gr14 update    # run inside the app
 ```
 
-Reads which template version the app was created from (the `package.json`
-marker), downloads that version and the latest release, and writes their diff —
-e.g. `start0-v0.3.0..v0.5.0.diff` — next to your code, with a ready-to-paste
-prompt for your agent to apply it. Already up to date? It says so. `--from` /
-`--to` override the range.
+Reads which template version the app was created from (the `package.json` marker
+every template copy ships with), downloads that version and the latest release,
+and writes their diff — e.g. `start0-v0.3.0..v0.5.0.diff` — next to your code,
+with a ready-to-paste prompt for your agent to apply it. Already up to date? It
+says so. `--from` / `--to` override the range.
 
 There's also `1gr14 download start0 --ref v0.3.0` — a bare snapshot of any
 version (no git, no setup), for reading versions side by side.
@@ -69,20 +69,23 @@ version (no git, no setup), for reading versions side by side.
 ```sh
 1gr14 login    # device flow: approve this machine in the browser
 1gr14 whoami   # show who is signed in
-1gr14 logout   # sign out and forget the token
+1gr14 logout   # revoke this machine's API key and forget it
 ```
 
 `login` shows a short code, opens 1gr14.dev in the browser, and waits for you to
-approve the device. The token is stored in `~/.config/1gr14/auth.json`. In CI
-and other headless places set the `S_1GR14_TOKEN` env var instead (`s_1gr14` is
-the brand's second spelling — and a valid shell name, unlike one starting with
-a digit).
+approve the device. It then stores an **API key** for this machine in
+`~/.config/1gr14/auth.json`. The key can only do the 1gr14 tools' job (download
+templates) — it can't touch your account — so it never expires; `logout` revokes
+it. In CI and other headless places set the `S_1GR14_API_KEY` env var instead —
+sign in on your machine once and copy the key from `auth.json` (`s_1gr14` is the
+brand's second spelling — and a valid shell name, unlike one starting with a
+digit).
 
 ## Open the links
 
 ```sh
 1gr14 open            # the site — 1gr14.dev
-1gr14 open youtube    # also: discord, tg, x, site
+1gr14 open youtube    # also: support, discord, tg, x, site
 ```
 
 `1gr14` with no command prints help. `1gr14 --version` prints the version.

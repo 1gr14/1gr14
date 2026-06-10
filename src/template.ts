@@ -4,17 +4,17 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { extract } from 'tar'
 import { ApiError, downloadRepoArchive, type FetchLike, type RepoArchive } from './api.js'
-import { deleteToken, getToken } from './config.js'
+import { forgetApiKey, getApiKey } from './config.js'
 import { runLogin } from './login.js'
 
-/** The stored token for the site, or a fresh one via the interactive device-flow sign-in. */
-export const ensureToken = async ({ site, fetchFn }: { site: string; fetchFn?: FetchLike }): Promise<string> => {
-  const token = getToken({ site })
-  if (token) {
-    return token
+/** The stored API key for the site, or a fresh one via the interactive device-flow sign-in. */
+export const ensureApiKey = async ({ site, fetchFn }: { site: string; fetchFn?: FetchLike }): Promise<string> => {
+  const apiKey = getApiKey({ site })
+  if (apiKey) {
+    return apiKey
   }
   p.log.info('Sign in first — the browser will ask you to approve this device.')
-  return (await runLogin({ site, fetchFn })).token
+  return (await runLogin({ site, fetchFn })).apiKey
 }
 
 export type TemplateArchive = RepoArchive & {
@@ -23,9 +23,9 @@ export type TemplateArchive = RepoArchive & {
 }
 
 /**
- * Download a template archive from the site, signing in when needed: missing token → device-flow login; stale token
- * (the session can expire server-side) → forget it and sign in again, once. The shared first step of `create`,
- * `download`, and `update`.
+ * Download a template archive from the site, signing in when needed: missing API key → device-flow login; dead key
+ * (revoked server-side) → forget it and sign in again, once. The shared first step of `create`, `download`, and
+ * `update`.
  */
 export const downloadTemplate = async ({
   site,
@@ -40,20 +40,20 @@ export const downloadTemplate = async ({
   fetchFn?: FetchLike
   spinner?: ReturnType<typeof p.spinner>
 }): Promise<TemplateArchive> => {
-  let token = await ensureToken({ site, fetchFn })
+  let apiKey = await ensureApiKey({ site, fetchFn })
   let archive: RepoArchive
   try {
-    archive = await downloadRepoArchive({ site, token, repo: template, ref, fetchFn })
+    archive = await downloadRepoArchive({ site, apiKey, repo: template, ref, fetchFn })
   } catch (error) {
     const unauthorized = error instanceof ApiError && (error.status === 401 || error.code === 'UNAUTHORIZED')
     if (!unauthorized) {
       throw error
     }
-    spinner?.error('Session expired — sign in again')
-    deleteToken({ site })
-    token = (await runLogin({ site, fetchFn })).token
+    spinner?.error('The API key is no longer valid — sign in again')
+    forgetApiKey({ site })
+    apiKey = (await runLogin({ site, fetchFn })).apiKey
     spinner?.start(`Downloading ${template}…`)
-    archive = await downloadRepoArchive({ site, token, repo: template, ref, fetchFn })
+    archive = await downloadRepoArchive({ site, apiKey, repo: template, ref, fetchFn })
   }
   return { ...archive, version: archive.tag ?? archive.ref }
 }
