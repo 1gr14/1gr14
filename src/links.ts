@@ -8,7 +8,7 @@ export const links = {
   site: 'https://1gr14.dev',
   support: 'https://1gr14.dev/support',
   youtube: 'https://www.youtube.com/@s_1gr14',
-  discord: 'https://discord.gg/qK9gSzqT9e',
+  discord: 'https://discord.gg/hWgtn58FVv',
   tg: 'https://t.me/s_1gr14',
   x: 'https://x.com/s_1gr14',
 } as const
