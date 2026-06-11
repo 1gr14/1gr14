@@ -107,7 +107,7 @@ describe('exchangeApiKey', () => {
     const apiKey = await exchangeApiKey({ site, token: 't', client: CLIENT_ID, name: 'My Mac', fetchFn })
     expect(apiKey).toBe('s_1gr14_abc')
     const url = new URL(calls[0].url)
-    expect(url.pathname).toBe('/api/api-keys/exchange')
+    expect(url.pathname).toBe('/api/api-key/exchange')
     expect(url.searchParams.get('client')).toBe(CLIENT_ID)
     expect(url.searchParams.get('name')).toBe('My Mac')
     expect(calls[0].init?.method).toBe('POST')
@@ -119,7 +119,7 @@ describe('revokeApiKey', () => {
   it('posts the key and tolerates an already-dead one', async () => {
     const { fetchFn, calls } = makeFetch([jsonResponse(200, { revoked: true }), jsonResponse(401, {})])
     await revokeApiKey({ site, apiKey: 'k', fetchFn })
-    expect(new URL(calls[0].url).pathname).toBe('/api/api-keys/revoke')
+    expect(new URL(calls[0].url).pathname).toBe('/api/api-key/revoke')
     expect(new Headers(calls[0].init?.headers).get('x-api-key')).toBe('k')
     await revokeApiKey({ site, apiKey: 'k', fetchFn })
   })

@@ -172,7 +172,7 @@ export const exchangeApiKey = async ({
   name?: string
   fetchFn?: FetchLike
 }): Promise<string> => {
-  const url = new URL(`${site}/api/api-keys/exchange`)
+  const url = new URL(`${site}/api/api-key/exchange`)
   url.searchParams.set('client', client)
   if (name) {
     url.searchParams.set('name', name)
@@ -195,7 +195,7 @@ export const revokeApiKey = async ({
   apiKey: string
   fetchFn?: FetchLike
 }): Promise<void> => {
-  const response = await fetchFn(`${site}/api/api-keys/revoke`, { method: 'POST', headers: apiKeyHeaders(apiKey) })
+  const response = await fetchFn(`${site}/api/api-key/revoke`, { method: 'POST', headers: apiKeyHeaders(apiKey) })
   if (!response.ok && response.status !== 401) {
     throw await parseError(response)
   }
