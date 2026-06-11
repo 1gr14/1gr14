@@ -78,8 +78,8 @@
   },
   "dependencies": {
     "@clack/prompts": "^1.5.1",
-    "commander": "^14.0.0",
-    "open": "^10.1.0",
+    "commander": "^15.0.0",
+    "open": "^11.0.0",
     "tar": "^7.5.16"
   },
   "peerDependencies": {},
