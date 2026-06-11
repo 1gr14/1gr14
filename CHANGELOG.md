@@ -1,3 +1,10 @@
+## [0.3.2](https://github.com/1gr14/1gr14/compare/v0.3.1...v0.3.2) (2026-06-11)
+
+
+### Bug Fixes
+
+* refresh Discord invite — old link expired, new permanent one ([f4adffd](https://github.com/1gr14/1gr14/commit/f4adffdd648d7bfce285b9c75ada99ba89cc97ca))
+
 ## [0.3.1](https://github.com/1gr14/1gr14/compare/v0.3.0...v0.3.1) (2026-06-11)
 
 
