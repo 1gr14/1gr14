@@ -1,3 +1,10 @@
+## [0.3.1](https://github.com/1gr14/1gr14/compare/v0.3.0...v0.3.1) (2026-06-11)
+
+
+### Bug Fixes
+
+* call the renamed /api/api-key/* endpoints ([ae831a2](https://github.com/1gr14/1gr14/commit/ae831a28b5432debf21ea8054a74c49b5fbf6bce))
+
 # [0.3.0](https://github.com/1gr14/1gr14/compare/v0.2.0...v0.3.0) (2026-06-10)
 
 
