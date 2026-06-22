@@ -14,7 +14,7 @@ project's Overview page. Keep the markers; put badges/header above docs:start an
 the Community/Contributing/License footer below docs:end. -->
 
 `1gr14` is the entry point to the 1gr14 ecosystem from your terminal. It creates
-apps from 1gr14 templates (like the [start0](https://1gr14.dev) SaaS
+apps from 1gr14 templates (like the [start0](https://1gr14.dev/start0) SaaS
 boilerplate), signs you in to 1gr14.dev, and opens the community channels — no
 hunting for links.
 
@@ -116,7 +116,7 @@ await runCreate({ template: 'start0', dir: 'my-app' }) // the whole create flow
 Questions, bugs, or want to hang with other builders? Join the 1gr14 community —
 one hub for all our open-source projects, this one included. Get help, share
 what you built, or just say hi:
-[1gr14.dev/community](https://1gr14.dev/community)
+[1gr14.dev/#community](https://1gr14.dev/#community)
 
 ## Contributing
 
@@ -131,8 +131,5 @@ Issues and PRs welcome. See [CONTRIBUTING.md](./CONTRIBUTING.md) and the
 
 ---
 
-```text
-Building open-source software for the glory of the Lord Jesus Christ ☦️
-With love for developers of all backgrounds around the world ❤️
-Sergei Dmitriev, 2026 😎
-```
+Made by [1gr14](https://1gr14.dev), driven by
+[community](https://1gr14.dev/#community)
