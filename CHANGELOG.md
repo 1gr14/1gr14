@@ -1,5 +1,7 @@
 ## Unreleased
 
+## 0.3.4 — 2026-07-01
+
 - `1gr14 create`: hand the created directory to the template's init via the
   `S_1GR14_CREATE_DIR` env var, so start0's "Next steps" can tell you to `cd`
   into the new app. Previously init couldn't see the shell's directory and
