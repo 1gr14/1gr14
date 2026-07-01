@@ -1,3 +1,16 @@
+## Unreleased
+
+- `1gr14 create`: hand the created directory to the template's init via the
+  `S_1GR14_CREATE_DIR` env var, so start0's "Next steps" can tell you to `cd`
+  into the new app. Previously init couldn't see the shell's directory and
+  printed a wrong `cd ..`.
+
+## 0.3.3 — 2026-06-11
+
+- Internal: migrated to the in-house tag-driven release (no semantic-release),
+  dual TS6/TS7 typecheck, README refresh, dropped dead deps. No user-facing
+  change.
+
 ## [0.3.2](https://github.com/1gr14/1gr14/compare/v0.3.1...v0.3.2) (2026-06-11)
 
 

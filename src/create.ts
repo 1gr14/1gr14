@@ -102,7 +102,13 @@ export const runCreate = async ({
       p.note(nextSteps, 'Next steps')
     } else {
       p.log.step('bun run init')
-      const result = spawnSync('bun', ['run', 'init'], { cwd: target, stdio: 'inherit' })
+      // The template's init runs from inside `target`, so it can't see our shell's cwd (the app's parent). Hand it the
+      // directory the user typed so its closing "Next steps" can tell them to `cd` in — see start0's init/steps.ts.
+      const result = spawnSync('bun', ['run', 'init'], {
+        cwd: target,
+        stdio: 'inherit',
+        env: { ...process.env, S_1GR14_CREATE_DIR: dirInput },
+      })
       if (result.status !== 0) {
         p.log.warn(`Init exited with code ${String(result.status)} — rerun it later: bun run init`)
       }
