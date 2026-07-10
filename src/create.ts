@@ -4,7 +4,7 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { type FetchLike } from './api.js'
 import { resolveSite } from './config.js'
-import { downloadTemplate, extractTemplate } from './template.js'
+import { downloadTemplate, ensureApiKey, extractTemplate } from './template.js'
 
 /** Whether an executable answers `--version` — the portable way to probe for `git` and `bun`. */
 export const hasCommand = (command: string): boolean => {
@@ -77,17 +77,25 @@ export const runCreate = async ({
   const target = resolve(dirInput)
   assertTargetDir(target)
 
+  // Signing in prints its own notes and runs its own spinner — get it done before ours starts.
+  await ensureApiKey({ site, fetchFn })
+
   const spinner = p.spinner()
   spinner.start(`Downloading ${template}…`)
-  const archive = await downloadTemplate({ site, template, ref, fetchFn, spinner })
+  try {
+    const archive = await downloadTemplate({ site, template, ref, fetchFn, spinner })
 
-  spinner.message('Extracting…')
-  await extractTemplate({ data: archive.data, target })
+    spinner.message('Extracting…')
+    await extractTemplate({ data: archive.data, target })
 
-  if (hasCommand('git') && !existsSync(join(target, '.git'))) {
-    spawnSync('git', ['init', '--quiet'], { cwd: target, stdio: 'ignore' })
+    if (hasCommand('git') && !existsSync(join(target, '.git'))) {
+      spawnSync('git', ['init', '--quiet'], { cwd: target, stdio: 'ignore' })
+    }
+    spinner.stop(`Created ${dirInput}${archive.version ? ` from ${template} ${archive.version}` : ''}`)
+  } catch (error) {
+    spinner.error('Failed')
+    throw error
   }
-  spinner.stop(`Created ${dirInput}${archive.version ? ` from ${template} ${archive.version}` : ''}`)
 
   const nextSteps = `${dirInput === '.' ? '' : `cd ${dirInput}\n`}bun run init`
   if (!templateHasInitScript(target)) {

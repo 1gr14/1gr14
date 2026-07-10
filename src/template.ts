@@ -26,6 +26,10 @@ export type TemplateArchive = RepoArchive & {
  * Download a template archive from the site, signing in when needed: missing API key → device-flow login; dead key
  * (revoked server-side) → forget it and sign in again, once. The shared first step of `create`, `download`, and
  * `update`.
+ *
+ * A sign-in prints notes and runs a spinner of its own, so a caller that owns a spinner calls {@link ensureApiKey}
+ * before starting it — by the time we get here the key is on disk, and only the dead-key path can log in again (it
+ * stops `spinner` first).
  */
 export const downloadTemplate = async ({
   site,

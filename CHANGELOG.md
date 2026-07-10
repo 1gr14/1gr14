@@ -1,5 +1,12 @@
 ## Unreleased
 
+- `create` / `download` / `update`: sign in before the download spinner starts.
+  A first run used to flicker between "Downloading…" and "Waiting for approval
+  in the browser…", because the login raised a second spinner over the first.
+- A failed run now stops its spinner, so the error prints on its own instead of
+  being followed by a stray "Canceled" — which read as if you had cancelled
+  rather than been refused.
+
 ## 0.3.4 — 2026-07-01
 
 - `1gr14 create`: hand the created directory to the template's init via the
