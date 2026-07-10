@@ -1,5 +1,7 @@
 ## Unreleased
 
+## 0.3.6 — 2026-07-10
+
 - `create` / `download` / `update`: sign in before the download spinner starts.
   A first run used to flicker between "Downloading…" and "Waiting for approval
   in the browser…", because the login raised a second spinner over the first.
