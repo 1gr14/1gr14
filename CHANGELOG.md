@@ -1,9 +1,11 @@
 ## Unreleased
 
-- Drop the trailing ellipsis from spinner messages (`Downloading start0`, not
-  `Downloading start0…`) — `@clack/prompts` already animates its own dots, so the
-  ellipsis doubled them. Also replaced the stray single `…` glyph with plain
-  `...` in the remaining strings and comments.
+## 0.3.8 — 2026-07-13
+
+- Spinner messages no longer carry a trailing ellipsis — `@clack/prompts`
+  already animates its own dots, so ending a message in one doubled them. Also
+  swapped stray single-character ellipses for plain `...` in the remaining
+  strings and comments.
 
 ## 0.3.7 — 2026-07-13
 
