@@ -1,5 +1,7 @@
 ## Unreleased
 
+## 0.3.7 — 2026-07-13
+
 - `1gr14 create`: when the template's init script runs, don't print a second
   closing `outro` over the init script's own — that stacked a duplicate "Happy
   hacking! ♥" under the init script's sign-off. The CLI still signs off on the
