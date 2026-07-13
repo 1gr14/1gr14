@@ -1,5 +1,10 @@
 ## Unreleased
 
+- `1gr14 create`: when the template's init script runs, don't print a second
+  closing `outro` over the init script's own — that stacked a duplicate "Happy
+  hacking! ♥" under the init script's sign-off. The CLI still signs off on the
+  paths where init isn't run (declined, no Bun, non-interactive, no init script).
+
 ## 0.3.6 — 2026-07-10
 
 - `create` / `download` / `update`: sign in before the download spinner starts.

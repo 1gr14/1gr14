@@ -97,6 +97,7 @@ export const runCreate = async ({
     throw error
   }
 
+  let initRan = false
   const nextSteps = `${dirInput === '.' ? '' : `cd ${dirInput}\n`}bun run init`
   if (!templateHasInitScript(target)) {
     p.note(`cd ${dirInput}`, 'Next steps')
@@ -119,9 +120,14 @@ export const runCreate = async ({
       })
       if (result.status !== 0) {
         p.log.warn(`Init exited with code ${String(result.status)} — rerun it later: bun run init`)
+      } else {
+        initRan = true
       }
     }
   }
 
-  p.outro('Happy hacking! ♥')
+  // When the init script ran, it printed its own closing message — don't stack a second outro on top of it.
+  if (!initRan) {
+    p.outro('Happy hacking! ♥')
+  }
 }
