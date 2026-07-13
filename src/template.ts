@@ -56,7 +56,7 @@ export const downloadTemplate = async ({
     spinner?.error('The API key is no longer valid — sign in again')
     forgetApiKey({ site })
     apiKey = (await runLogin({ site, fetchFn })).apiKey
-    spinner?.start(`Downloading ${template}…`)
+    spinner?.start(`Downloading ${template}`)
     archive = await downloadRepoArchive({ site, apiKey, repo: template, ref, fetchFn })
   }
   return { ...archive, version: archive.tag ?? archive.ref }

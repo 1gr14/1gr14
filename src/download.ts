@@ -32,14 +32,14 @@ export const runDownload = async ({
   await ensureApiKey({ site, fetchFn })
 
   const spinner = p.spinner()
-  spinner.start(`Downloading ${template}…`)
+  spinner.start(`Downloading ${template}`)
   try {
     const archive = await downloadTemplate({ site, template, ref, fetchFn, spinner })
-    // Defaulting the folder to the version keeps repeated snapshots side by side: start0-v0.3.0/, start0-v0.5.0/, …
+    // Defaulting the folder to the version keeps repeated snapshots side by side: start0-v0.3.0/, start0-v0.5.0/, ...
     const dirInput = dir ?? `${template}-${(archive.version ?? 'snapshot').replace(/[^\w.-]/g, '-')}`
     const target = resolve(dirInput)
     assertTargetDir(target)
-    spinner.message('Extracting…')
+    spinner.message('Extracting')
     await extractTemplate({ data: archive.data, target })
     spinner.stop(`Downloaded ${template}${archive.version ? ` ${archive.version}` : ''} into ${dirInput}`)
 

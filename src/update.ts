@@ -9,7 +9,7 @@ import { hasCommand } from './create.js'
 import { downloadTemplate, ensureApiKey, extractTemplate } from './template.js'
 
 /**
- * The template version an app was created from — `package.json` → `"<template>": { "version": "…" }`, or `null`. The
+ * The template version an app was created from — `package.json` → `"<template>": { "version": "..." }`, or `null`. The
  * marker ships inside the template's own `package.json` (stamped at release), so every copy carries it from day one.
  */
 export const readVersionMarker = ({ dir, template }: { dir: string; template: string }): string | null => {
@@ -65,7 +65,7 @@ export const runUpdate = async ({
   if (!fromRef) {
     throw new Error(
       `Can't tell which ${template} version this app was created from: package.json has no ` +
-        `"${template}": { "version": … } marker. Add it, or pass --from <ref>.`,
+        `"${template}": { "version": ... } marker. Add it, or pass --from <ref>.`,
     )
   }
   if (!hasCommand('git')) {
@@ -76,7 +76,7 @@ export const runUpdate = async ({
   await ensureApiKey({ site, fetchFn })
 
   const spinner = p.spinner()
-  spinner.start(`Downloading the latest ${template}…`)
+  spinner.start(`Downloading the latest ${template}`)
   try {
     const fresh = await downloadTemplate({ site, template, ref: to, fetchFn, spinner })
     const toRef = fresh.version ?? to ?? 'latest'
@@ -86,10 +86,10 @@ export const runUpdate = async ({
       return null
     }
 
-    spinner.message(`Downloading your ${template} (${fromRef})…`)
+    spinner.message(`Downloading your ${template} (${fromRef})`)
     const base = await downloadTemplate({ site, template, ref: fromRef, fetchFn, spinner })
 
-    spinner.message('Diffing…')
+    spinner.message('Diffing')
     const tmp = mkdtempSync(join(tmpdir(), '1gr14-update-'))
     let diff: string
     try {

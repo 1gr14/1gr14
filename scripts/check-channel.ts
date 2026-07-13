@@ -29,7 +29,7 @@ export function assertTag(version: string, tag: string): void {
   if (tag === expected) return
   throw new Error(
     `Tag guard: release tag "${tag}" does not match the version in package.json (${version}). ` +
-      `A release tag must be exactly "${expected}" — re-run \`bun run release …\` so the bump and the tag agree.`,
+      `A release tag must be exactly "${expected}" — re-run \`bun run release ...\` so the bump and the tag agree.`,
   )
 }
 

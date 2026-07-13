@@ -1,5 +1,10 @@
 ## Unreleased
 
+- Drop the trailing ellipsis from spinner messages (`Downloading start0`, not
+  `Downloading start0…`) — `@clack/prompts` already animates its own dots, so the
+  ellipsis doubled them. Also replaced the stray single `…` glyph with plain
+  `...` in the remaining strings and comments.
+
 ## 0.3.7 — 2026-07-13
 
 - `1gr14 create`: when the template's init script runs, don't print a second
@@ -10,8 +15,8 @@
 ## 0.3.6 — 2026-07-10
 
 - `create` / `download` / `update`: sign in before the download spinner starts.
-  A first run used to flicker between "Downloading…" and "Waiting for approval
-  in the browser…", because the login raised a second spinner over the first.
+  A first run used to flicker between "Downloading..." and "Waiting for approval
+  in the browser...", because the login raised a second spinner over the first.
 - A failed run now stops its spinner, so the error prints on its own instead of
   being followed by a stray "Canceled" — which read as if you had cancelled
   rather than been refused.

@@ -81,11 +81,11 @@ export const runCreate = async ({
   await ensureApiKey({ site, fetchFn })
 
   const spinner = p.spinner()
-  spinner.start(`Downloading ${template}…`)
+  spinner.start(`Downloading ${template}`)
   try {
     const archive = await downloadTemplate({ site, template, ref, fetchFn, spinner })
 
-    spinner.message('Extracting…')
+    spinner.message('Extracting')
     await extractTemplate({ data: archive.data, target })
 
     if (hasCommand('git') && !existsSync(join(target, '.git'))) {

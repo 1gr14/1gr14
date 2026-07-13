@@ -40,17 +40,17 @@ export const runLogin = async ({
     }
   }
   const spinner = p.spinner()
-  spinner.start('Waiting for approval in the browser…')
+  spinner.start('Waiting for approval in the browser')
   try {
     const token = await pollDeviceToken({
       site,
       deviceCode: device.device_code,
       intervalSeconds: device.interval,
       expiresInSeconds: device.expires_in,
-      onSlowDown: (seconds) => spinner.message(`Waiting for approval (checking every ${seconds}s)…`),
+      onSlowDown: (seconds) => spinner.message(`Waiting for approval (checking every ${seconds}s)`),
       fetchFn,
     })
-    spinner.message('Creating the API key…')
+    spinner.message('Creating the API key')
     let apiKey: string
     try {
       apiKey = await exchangeApiKey({ site, token, client: CLIENT_ID, name: hostname().slice(0, 32), fetchFn })

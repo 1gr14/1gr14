@@ -5,7 +5,7 @@
  * is pushed for you; nothing is derived from commit messages.
  *
  * bun run release patch 0.1.0 → 0.1.1 bun run release minor 0.1.0 → 0.2.0 bun run release prerelease 0.1.0 →
- * 0.1.0-next.0 (re-run → -next.1, -next.2 …) bun run release stable 0.2.0-next.3 → 0.2.0 (strip the prerelease suffix)
+ * 0.1.0-next.0 (re-run → -next.1, -next.2 ...) bun run release stable 0.2.0-next.3 → 0.2.0 (strip the prerelease suffix)
  * bun run release 0.3.0 explicit version (also accepts 0.3.0-next.0). Add --no-git to bump only (skip commit + tag).
  *
  * Classic single-branch model: everything lands on `main` and `v*` tags drive publishing. The dist-tag is derived from
