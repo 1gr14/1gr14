@@ -102,6 +102,11 @@ jobs:
           name: build-files
           path: .
 
+      # npm 10 (bundled with Node 20/22) can crash on this install with "Cannot read properties of null
+      # (reading 'edgesOut')", an arborist bug that depends on registry state. npm 11 resolves the same tree fine.
+      - name: Upgrade npm (npm 10's arborist crashes resolving the peer set)
+        run: npm install -g npm@11
+
       - name: Install runtime deps
         run: npm install --omit=dev --no-audit --no-fund
 
